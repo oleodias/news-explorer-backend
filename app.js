@@ -1,16 +1,16 @@
 // Lê o .env (só existe no servidor) para dentro de process.env. Precisa vir
-// antes de qualquer require que use process.env.
+// antes de qualquer require que use process.env, como o utils/config.js.
 // quiet: a partir da versão 17, o dotenv imprime uma linha a cada config().
 require('dotenv').config({ quiet: true });
 
 const express = require('express');
 const mongoose = require('mongoose');
+const { PORT, MONGO_URL } = require('./utils/config');
 
-const { PORT = 3000 } = process.env;
 const app = express();
 
 mongoose
-  .connect('mongodb://localhost:27017/news-explorer')
+  .connect(MONGO_URL)
   .then(() => console.log('Conectado ao MongoDB'))
   .catch((error) => console.error('Não foi possível conectar ao MongoDB:', error.message));
 
