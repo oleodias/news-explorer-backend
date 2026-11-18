@@ -6,6 +6,7 @@ require('dotenv').config({ quiet: true });
 const express = require('express');
 const mongoose = require('mongoose');
 const { PORT, MONGO_URL } = require('./utils/config');
+const errorHandler = require('./middlewares/error-handler');
 
 const app = express();
 
@@ -16,6 +17,10 @@ mongoose
 
 // Transforma o corpo JSON das requisições em req.body.
 app.use(express.json());
+
+// O tratador central vem DEPOIS de todas as rotas: o Express só chega a ele
+// quando alguém chama next(erro) ou quando um erro é lançado.
+app.use(errorHandler);
 
 // No Express 5, se a porta já estiver ocupada, o erro chega como argumento
 // deste callback. Sem o if, a mensagem de "listening" apareceria mesmo com o
