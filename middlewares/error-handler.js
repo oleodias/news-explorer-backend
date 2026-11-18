@@ -1,5 +1,23 @@
 const { isCelebrateError } = require('celebrate');
 const { STATUS, MESSAGES } = require('../utils/constants');
+const BadRequestError = require('../errors/bad-request-err');
+const UnauthorizedError = require('../errors/unauthorized-err');
+const ForbiddenError = require('../errors/forbidden-err');
+const NotFoundError = require('../errors/not-found-err');
+const ConflictError = require('../errors/conflict-err');
+
+// As nossas classes de erro (pasta errors/). Elas são reconhecidas pela
+// CLASSE, e não pelo campo statusCode: o express.json() também põe
+// statusCode nos erros dele, e a mensagem desses erros é a crua do Node
+// ("Expected property name or '}' in JSON..."), que não pode chegar ao
+// cliente.
+const appErrors = [
+  BadRequestError,
+  UnauthorizedError,
+  ForbiddenError,
+  NotFoundError,
+  ConflictError,
+];
 
 // O tratador de erros central: TODO erro da API passa por aqui e sai no
 // mesmo formato, { message }. O Express o reconhece pelos QUATRO
@@ -10,8 +28,8 @@ const { STATUS, MESSAGES } = require('../utils/constants');
 // e este módulo escolhe o status. Nenhum erro cru do banco ou do Node chega
 // ao cliente: o que não é reconhecido vira 500 com mensagem genérica.
 module.exports = (err, req, res, next) => {
-  // Erros nossos (pasta errors/): já trazem o status e a mensagem.
-  if (err.statusCode) {
+  // Erros nossos: já trazem o status e uma mensagem escrita por nós.
+  if (appErrors.some((AppError) => err instanceof AppError)) {
     return res.status(err.statusCode).send({ message: err.message });
   }
 
@@ -45,10 +63,11 @@ module.exports = (err, req, res, next) => {
     return res.status(STATUS.CONFLICT).send({ message: MESSAGES.EMAIL_TAKEN });
   }
 
-  // Erros do próprio Express com status 400: JSON malformado no corpo,
-  // endereço malformado (/articles/%E0).
-  if (err.status === STATUS.BAD_REQUEST) {
-    return res.status(STATUS.BAD_REQUEST).send({ message: MESSAGES.INVALID_DATA });
+  // Erros do próprio Express com status 4xx: JSON malformado no corpo
+  // (400), endereço malformado como /articles/%E0 (400), corpo grande demais
+  // (413). O status do Express é mantido; a mensagem crua dele, não.
+  if (err.status >= 400 && err.status < 500) {
+    return res.status(err.status).send({ message: MESSAGES.INVALID_DATA });
   }
 
   // Qualquer outra coisa: 500, sem expor os detalhes do erro.
