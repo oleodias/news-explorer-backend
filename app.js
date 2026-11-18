@@ -6,6 +6,7 @@ require('dotenv').config({ quiet: true });
 const express = require('express');
 const mongoose = require('mongoose');
 const { PORT, MONGO_URL } = require('./utils/config');
+const routes = require('./routes');
 const errorHandler = require('./middlewares/error-handler');
 
 const app = express();
@@ -17,6 +18,9 @@ mongoose
 
 // Transforma o corpo JSON das requisições em req.body.
 app.use(express.json());
+
+// Todas as rotas da API (routes/index.js).
+app.use(routes);
 
 // O tratador central vem DEPOIS de todas as rotas: o Express só chega a ele
 // quando alguém chama next(erro) ou quando um erro é lançado.

@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 const validator = require('validator');
 const { MESSAGES } = require('../utils/constants');
+const UnauthorizedError = require('../errors/unauthorized-err');
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -31,6 +33,28 @@ const userSchema = new mongoose.Schema({
     maxlength: 30,
   },
 });
+
+// Método estático: chamado no modelo, User.findUserByCredentials(...).
+// function, e não arrow function, porque o this precisa ser o modelo User.
+// A mesma mensagem para "e-mail não existe" e "senha errada": quem tenta
+// adivinhar não descobre quais e-mails estão cadastrados.
+userSchema.statics.findUserByCredentials = function findUserByCredentials(email, password) {
+  return this.findOne({ email })
+    .select('+password')
+    .then((user) => {
+      if (!user) {
+        return Promise.reject(new UnauthorizedError(MESSAGES.WRONG_CREDENTIALS));
+      }
+
+      // then ANINHADO: aqui dentro o `user` ainda existe para ser devolvido.
+      return bcrypt.compare(password, user.password).then((matched) => {
+        if (!matched) {
+          return Promise.reject(new UnauthorizedError(MESSAGES.WRONG_CREDENTIALS));
+        }
+        return user;
+      });
+    });
+};
 
 // 'user' no singular: o Mongoose cria a coleção "users".
 module.exports = mongoose.model('user', userSchema);
