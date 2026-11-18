@@ -17,7 +17,12 @@ O front-end (Etapas 1 e 3) fica no repositório
 
 ## 🌐 Endereço
 
-- API: _será preenchido na implantação_
+- API: **https://api.leonews.kaiak.top** (também responde por HTTP)
+
+Hospedada numa VM do Google Cloud (Ubuntu 22.04), com MongoDB, PM2, Nginx
+como proxy reverso e certificado HTTPS do Let's Encrypt. Teste rápido: sem
+token, `https://api.leonews.kaiak.top/users/me` responde
+`{"message":"Autorização necessária"}`.
 
 ## Rotas
 
