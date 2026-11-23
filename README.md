@@ -15,14 +15,13 @@ Projeto da Sprint 19 (Projeto Final), feito em etapas.
 O front-end (Etapas 1 e 3) fica no repositório
 [news-explorer-frontend](https://github.com/oleodias/news-explorer-frontend).
 
-## 🌐 Endereço
+## 🌐 Implantação
 
-- API: **https://api.leonews.kaiak.top** (também responde por HTTP)
-
-Hospedada numa VM do Google Cloud (Ubuntu 22.04), com MongoDB, PM2, Nginx
-como proxy reverso e certificado HTTPS do Let's Encrypt. Teste rápido: sem
-token, `https://api.leonews.kaiak.top/users/me` responde
-`{"message":"Autorização necessária"}`.
+A API ficou no ar em `https://api.leonews.kaiak.top` durante a revisão das
+Etapas 2 e 3 (18 a 23/11/2026), numa VM do Google Cloud (Ubuntu 22.04) com
+MongoDB, PM2, Nginx como proxy reverso e certificado HTTPS do Let's Encrypt.
+Depois da aprovação, o servidor e os domínios foram desligados para não
+gerar custos; para rodar a API, veja "Como rodar" abaixo.
 
 ## Rotas
 
